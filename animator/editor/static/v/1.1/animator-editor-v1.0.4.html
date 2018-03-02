@@ -2063,7 +2063,7 @@
     		skydome = new THREE.Mesh(
     			new THREE.SphereGeometry( far * 0.1, 15, 15 ),
     			new THREE.MeshBasicMaterial({
-    				map: loader.load( "skydomes/skydome.jpg" ),
+    				map: loader.load( "/anywhere3d/skydomes/skydome.jpg" ),
     				color: 0xffffff,
     				side: THREE.DoubleSide
     			})
@@ -2108,7 +2108,7 @@
             document.addEventListener( 'mousemove', onDocumentMouseMove, false );
             
         //  Manny The Skeleton Default Rigged Mesh.
-            loadSkinnedAnimatedMesh("skinned/MannyTheSkeletonDefaultRigged_v04.js", 1);
+            loadSkinnedAnimatedMesh("/anywhere3d/skinned/MannyTheSkeletonDefaultRigged_v04.js", 1);
             
         //  Animator Inits.
             initAnimatorAdjustValues();
