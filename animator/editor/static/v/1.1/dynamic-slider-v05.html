@@ -1,0 +1,132 @@
+<html>
+
+    <head>
+    
+        <title>dynamic slider v0.5</title>
+        
+        <style>
+            html, body { width: 100%; height: 100%; }
+            body { background-color: #000000; margin:0px; padding:0px; overflow:auto; font-family:arial, san-serif; }
+            #target-item { position:absolute; left:30%; right:30%; top:40%; width:40%; height:20%; text-align:center; font-size:4em; }
+        </style>
+
+    </head>
+    
+    <body>
+    
+        <style type="text/css" id="dynamic-slider-css">
+            #slider-container { 
+                left:0px; right:0px; margin:20px; padding:10px; 
+                color: #ffffff; border:2px solid #ffffff; border-radius:10px; 
+            }
+            .slider-row { padding-left:10px; padding-right:5px; }
+            .dyn-label  { position:absolute; width:10%; font-size:11px; }
+            .dyn-slider { width:65%; margin-left:20%; }
+            .dyn-output { 
+                position:absolute; margin-right:10px; width:15%; 
+                color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+                font-weight:bold; font-size:1.2em; text-align:right; 
+            } 
+        </style>
+        
+        <div id="slider-container">
+            <div class="slider-row">
+                <label for="dynamic-slider" class="dyn-label">Dynamic <strong>slider</strong></label>
+                <input type="range" min="-1" max="1" value="0" class="dyn-slider" id="dynamic-slider" step="0.01">
+                <input type="number" value="0" class="dyn-output" id="dynamic-output" step="0.01">
+            </div>
+        </div>
+        
+        <input type="text" id="target-item" value="0">
+        
+    <!-- 
+         This dynamic slider is a structure of a label, a range input and a number input.
+         As you can press only an element at each time the slider it become to current slider.
+         Slider have attached the output element, the target element, the restore value, 
+         and an update function.
+         An animate function [ requestAnimationFrame( animate ); ] must running in page.
+         When you press slider it become current. 
+         When you release slider can stay current (by setting "dontKepp" to false) until 
+         next slider replace it as current or current slider become "null".
+         At animate runtime, if current slider status is true, add its value to target value,
+         and target return its new value to slider output element. Thats it.
+     -->
+     
+        <script>
+
+        //  CURRENT SLIDER, CURRENT OUTPUT AND CURRENT TARGET.
+
+        //  These must exist in document as global:
+            currentSlider = null;           // slider element
+            currentOutput = null;           // output element
+            currentSliderStatus = false;    // boolean.
+            
+        //  Do not keep last current slider alive until next replace it or keep.
+            dontKeep = true; // true: dont keep, false: keep. (default: true);
+        
+        //  SLIDER INITIALIZE.
+        
+        //  Dynamic Slider Output, Target and Restore value.
+            dynamicSlider = document.getElementById("dynamic-slider");
+            dynamicSlider.output = document.getElementById("dynamic-output");
+            dynamicSlider.target = document.getElementById("target-item");
+            dynamicSlider.restore = 0;
+            dynamicSlider.value = 0;
+            dynamicSlider.min = -1;
+            dynamicSlider.max = 1;
+            dynamicSlider.step = 0.01;
+
+        //  Slider Event listeners.
+            dynamicSlider.onmousedown = function() { 
+                currentSlider = this;
+                currentOutput = this.output;
+                currentSliderStatus = true;
+                currentSlider.value = this.restore;
+            };
+            
+            dynamicSlider.onmouseup = function() { 
+            //  Set restore value before current slider become null.
+                currentSlider.value = this.restore;
+            //  Discratch current slider, (or 
+            //  keep it as current until next slider replace it ).
+                currentSlider = null;
+                currentOutput = null;
+                currentSliderStatus = false; 
+            };
+            
+        //  Output Event listeners.
+            dynamicSlider.output.oninput = function() {
+                dynamicSlider.target.value = Number(this.value).toFixed(2);
+            };
+            
+        //  Update.
+            dynamicSlider.update = function () {
+                var s = Number( this.target.value );
+                s += Number( this.value );         // number
+            //  Submit value to target.
+                this.target.value = s.toFixed(2);  // string
+            //  Submit value direct to output.
+            //  this.output.value = s.toFixed(0);  // string
+            //  or you can:
+            //  Return real-time value from target.
+                this.output.value = Number( this.target.value ).toFixed(0);
+            };            
+            
+        //  Target event listeners (testing).
+            dynamicSlider.target.oninput = function() { 
+                dynamicSlider.output.value = Number( this.value ).toFixed(0);     // string
+            };
+            
+            animate();
+
+            function animate(){
+                requestAnimationFrame( animate );
+                //console.log("animating");
+                if (currentSliderStatus) currentSlider.update();
+            }
+
+        </script>
+        
+    </body>
+
+</html>

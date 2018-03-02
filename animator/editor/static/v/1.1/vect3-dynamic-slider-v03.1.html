@@ -1,0 +1,305 @@
+<html>
+
+    <head>
+    
+        <title>vect3 dynamic sliders v0.3.1</title>
+        
+        <style>
+            html, body { width: 100%; height: 100%; }
+            body { background-color: #000000; margin:0px; padding:0px; overflow:auto; font-family:arial, san-serif; }
+            #targets-v3 { position:absolute; left:20%; right:20%; top:40%; text-align:center; font-size:2em; }
+            .target-box { padding:10px; line-height:1.5em; border:1px solid red; color:#ffffff; display:block;}
+        </style>
+        
+<!-- CURRENT SLIDER OUTPUT AND TARGET -->
+        
+        <script>
+        
+        //  var logEventTarget = function(e){ console.log(e.target); }
+        //  document.addEventListener( "click",  logEventTarget, true );
+            
+        //  These must exist in document as global:
+            currentSlider = null;           // slider element
+            currentOutput = null;           // output element
+            currentTarget = null;           // vector3 object
+            currentSliderStatus = false;    // boolean.
+
+            animate();
+            
+            function animate(){
+                requestAnimationFrame( animate );
+                if (currentSliderStatus) currentSlider.update();
+            }
+            
+        </script>
+        
+<!-- DYNAMIC AND STATIC SLIDER INIT FUNCTIONS -->
+        
+        <script>
+    /*
+         *  options: { 
+         *      slider:   HTML element, 
+         *      output:   HTML element, 
+         *      min:      number, 
+         *      max:      number, 
+         *      step:     number, 
+         *      restore:  number, 
+         *      value:    number,
+         *      vector:   string ("x", "y" or "z")
+         *      onoutput: function,
+         *      onupdate: function
+         *  }
+     */
+        
+        //  DYNAMIC SLIDER INIT FUNCTION.
+        
+            var dynamicInit = function( options ) {
+                
+                this.output = options.output;
+                this.output.slider = this;
+                this.vector = this.output.vector = options.vector;
+                this.restore = options.restore;
+                this.value = options.value;
+                this.min = options.min;
+                this.max = options.max;
+                this.step = options.step;
+                this.value = options.value;
+                this.update = options.onupdate;
+                this.output.oninput = options.onoutput;
+                
+            //  Slider Event listeners.
+            
+                this.onmousedown = function() { 
+                    currentSlider = this;
+                    currentOutput = this.output;
+                    currentSliderStatus = true;
+                    currentSlider.value = this.restore;
+                };
+                
+                this.onmouseup = function() { 
+                    currentSlider.value = this.restore;
+                    currentSlider = null;
+                    currentOutput = null;
+                    currentSliderStatus = false; 
+                };
+                
+            //  Output Event listeners.
+            
+                this.output.onmousedown = function() {
+                    if (!currentTarget) event.preventDefault();
+                };
+
+                console.log("Dynamic slider", this.id, "initialized.");
+            }
+            
+        //  STATIC SLIDER INIT FUNCTION.
+            
+            var staticInit = function( options ) {
+            
+                this.output = options.output;
+                this.output.slider = this;
+                this.vector = this.output.vector = options.vector;
+                this.restore = this.output.restore = options.restore;
+                this.value = this.output.value = options.value;
+                this.min = this.output.min = options.min;
+                this.max = this.output.max = options.max;
+                this.step = this.output.step = options.step;
+                this.value = this.output.value = options.value;
+                this.update = options.onupdate;
+                this.output.oninput = options.onoutput;
+                
+            //  Slider Event listeners.
+            
+                this.onmousedown = function() { 
+                    currentSlider = this;
+                    currentOutput = this.output;
+                    currentSliderStatus = true;
+                };
+                
+                this.onmouseup = function() { 
+                    currentSlider = null;
+                    currentOutput = null;
+                    currentSliderStatus = false; 
+                };
+                
+            //  Output Event listeners.
+            
+                this.output.onmousedown = function() {
+                    if (!currentTarget) event.preventDefault();
+                };
+
+                console.log("Static slider", this.id, "initialized.");
+            }
+
+        </script>
+
+    </head>
+
+    <body>
+
+        <style type="text/css" id="v3-dynamic-sliders-css">
+            #v3-sliders-container { 
+                left:0px; right:0px; margin:20px; padding:10px; 
+                color: #ffffff; border:2px solid #ffffff; border-radius:10px; 
+            }
+            .slider-row { padding-left:10px; padding-right:5px; }
+            .dynamic-label  { position:absolute; width:18%; font-size:11px; padding-top:5px; }
+            .dynamic-slider { width:60%; margin-left:20%; }
+            .dynamic-output { 
+                position:absolute; margin-right:10px; width:18%; 
+                color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+                font-weight:bold; font-size:1.2em; text-align:right; 
+            } 
+        </style>
+    
+        <div id="v3-sliders-container">
+            <div class="slider-row">
+                <label for="v3-slider-x" id="v3-label-x" class="dynamic-label">Position&nbsp;<strong>x:</strong></label>
+                <input type="range" id="v3-slider-x" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+                <input type="number" id="v3-output-x" class="dynamic-output" value="0" step="0.01">
+            </div>
+            <div class="slider-row">
+                <label for="v3-slider-y" id="v3-label-y" class="dynamic-label">Rotation&nbsp;<strong>y:</strong></label>
+                <input type="range" id="v3-slider-y" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+                <input type="number" id="v3-output-y" class="dynamic-output" value="0" step="0.01">
+            </div>
+            <div class="slider-row">
+                <label for="v3-slider-z" id="v3-label-z" class="dynamic-label">Scale&nbsp;<strong>z:</strong></label>
+                <input type="range" id="v3-slider-z" class="dynamic-slider" min="0.99" max="1.01" value="1" step="0.0001">
+                <input type="number" id="v3-output-z" class="dynamic-output" value="100" step="1">
+            </div>
+        </div>
+    
+        <div id="targets-v3">
+            <div id="v3-target-x" class="target-box">x:0</div>
+            <div id="v3-target-y" class="target-box">y:0</div>
+            <div id="v3-target-z" class="target-box">z:100</div>
+        </div>
+        
+        <!-- Init target vector3 values. -->
+        
+        <script>
+            var trgv3 = document.getElementById("targets-v3");
+            trgv3.vect3 = {x:0, y:0, z:100}; 
+            trgv3.onclick = function(){ 
+                currentTarget = this.vect3; 
+                console.log(currentTarget);
+            }
+        </script>
+        
+        <!-- Define v3 sliders option. -->
+        
+        <script>
+        
+            var setCurrentTargetDynamicVectorValue = function(){
+            //  vector: "x", "y" or "z".
+                var v = this.vector; console.log(v);
+                if (!currentTarget) return; 
+                currentTarget[v] = Number( this.value );
+                justforChecking();
+            };
+            
+            var setCurrentTargetStaticVectorValue = function(){
+            //  vector: "x", "y" or "z".
+                var v = this.vector; console.log(v);
+                if (!currentTarget) return; 
+                currentTarget[v] = Number( this.value );
+                this.slider.value = Number( currentTarget[v] ).toFixed(2);
+                justforChecking();
+            };
+            
+            var updateCurrentTargetDynamicVectorValue = function(){
+            //  vector: "x", "y" or "z".
+                var v = this.vector; console.log(v);
+                if (!currentTarget) return;
+                var s = Number( currentTarget[v] ); // number
+                s += Number( this.value );          // number
+                currentTarget[v] = s;               // number
+            //  Return current target value.
+                this.output.value = Number( currentTarget[v] ).toFixed(0); // string
+                justforChecking();
+            };
+            
+            var updateCurrentTargetStaticVectorValue = function(){
+            //  vector: "x", "y" or "z".
+                var v = this.vector; console.log(v);
+                if (!currentTarget) return;
+                currentTarget[v] = Number( this.value );               // number
+            //  Return current target value.
+                this.output.value = Number( currentTarget[v] ).toFixed(0); // string
+                justforChecking();
+            };
+            
+        //  For dynamic sliders only.
+            var updateCurrentTargetMultipyVectorValue = function(){
+            //  vector: "x", "y" or "z".
+                var v = this.vector; console.log(v);
+                if (!currentTarget) return;
+                //var s = Number( currentTarget[v] ); // number
+                var s = Number( this.value );          // number
+                currentTarget[v] = s * Number( currentTarget[v] );               // number
+            //  Return current target value.
+                this.output.value = Number( currentTarget[v] ).toFixed(0); // string
+                justforChecking();
+            };
+
+            var options = {
+            
+            //  Dynamic slider-x options.
+                x: { vector: "x", 
+                    min:-1, max:1, step:0.01, restore:0, value:0,
+                    output: document.getElementById("v3-output-x" ),
+                    onoutput: setCurrentTargetDynamicVectorValue,
+                    onupdate: updateCurrentTargetDynamicVectorValue
+                },
+                
+            //  Dynamic slider-y options.
+                y: { vector: "y", 
+                    min:-180, max:180, step:1, restore:0, value:0,
+                    output: document.getElementById("v3-output-y" ), 
+                    onoutput: setCurrentTargetStaticVectorValue,
+                    onupdate: updateCurrentTargetStaticVectorValue
+                },
+                
+            //  Static slider-z options.
+                z: { vector: "z", 
+                    min:0.99, max:1.01, step:0.0001, restore:1, value:1,
+                    output: document.getElementById("v3-output-z" ), 
+                    onoutput: setCurrentTargetDynamicVectorValue,
+                    onupdate: updateCurrentTargetMultipyVectorValue
+                }
+            }
+
+        //  Setup sliders init function.
+            document.getElementById("v3-slider-x" ).init = dynamicInit;
+            document.getElementById("v3-slider-y" ).init = staticInit;
+            document.getElementById("v3-slider-z" ).init = dynamicInit;
+
+        //  Initialize v3 sliders.
+            document.getElementById("v3-slider-x" ).init( options.x );
+            document.getElementById("v3-slider-y" ).init( options.y );
+            document.getElementById("v3-slider-z" ).init( options.z );
+            
+        //  just for testing.
+            function justforChecking(){
+                document.getElementById("v3-target-x").innerHTML = "x:" + currentTarget.x.toFixed(2);
+                document.getElementById("v3-target-y").innerHTML = "y:" + currentTarget.y.toFixed(2);
+                document.getElementById("v3-target-z").innerHTML = "z:" + currentTarget.z.toFixed(2);
+            }            
+            
+        </script>
+
+    </body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+

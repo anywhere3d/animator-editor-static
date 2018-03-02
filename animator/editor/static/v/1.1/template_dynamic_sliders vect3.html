@@ -1,0 +1,153 @@
+<template name="DynamicSlidersVect3" id="dynamic-slider-vect3-template">
+    
+    <style type="text/css" id="v3-dynamic-sliders-css">
+        .v3-sliders-container { 
+            position:absolute; left:0px; right:0px; margin:20px; padding:10px; 
+            color: #ffffff; border:2px solid #ffffff; border-radius:10px; 
+        }
+        .slider-row { padding-left:10px; padding-right:5px; }
+        .dynamic-label  { position:absolute; width:18%; font-size:11px; padding-top:5px; }
+        .dynamic-slider { width:60%; margin-left:20%; }
+        .dynamic-output { 
+            position:absolute; right:0px; margin-right:10px; width:18%; 
+            color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+            font-weight:bold; font-size:1.2em; text-align:right; 
+        } 
+    </style>
+
+    <div class="v3-sliders-container">
+        <div class="slider-row">
+            <label for="v3-slider-x" id="v3-label-x" class="dynamic-label">Vector3&nbsp;<strong>x:</strong></label>
+            <input type="range" id="v3-slider-x" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="v3-output-x" class="dynamic-output" value="0" step="0.01">
+        </div>
+        <div class="slider-row">
+            <label for="v3-slider-y" id="v3-label-y" class="dynamic-label">Vector3&nbsp;<strong>y:</strong></label>
+            <input type="range" id="v3-slider-y" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="v3-output-y" class="dynamic-output" value="0" step="0.01">
+        </div>
+        <div class="slider-row">
+            <label for="v3-slider-z" id="v3-label-z" class="dynamic-label">Vector3&nbsp;<strong>z:</strong></label>
+            <input type="range" id="v3-slider-z" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="v3-output-z" class="dynamic-output" value="0" step="0.01">
+        </div>
+    </div>
+
+<!-- PAGE MUST RUN ANIMATE AND HAVE CURRENT SLIDER OUTPUT AND TARGET -->
+        
+    <!-- script>
+    
+    //  These must exist in document as global:
+        currentSlider = null;           // slider element
+        currentOutput = null;           // output element
+        currentTarget = null;           // vector3 object
+        currentSliderStatus = false;    // boolean.
+    
+        animate();
+        
+        function animate(){
+            requestAnimationFrame( animate );
+            if (currentSliderStatus) currentSlider.update();
+        }
+        
+    </script -->
+
+<!-- DYNAMIC AND STATIC SLIDER INIT FUNCTIONS -->
+
+    <script>
+/*
+     *  options: { 
+     *      slider:   HTML element, 
+     *      output:   HTML element, 
+     *      min:      number, 
+     *      max:      number, 
+     *      step:     number, 
+     *      restore:  number, 
+     *      value:    number,
+     *      vector:   string ("x", "y" or "z")
+     *      onoutput: function,
+     *      onupdate: function
+     *  }
+ */
+    
+    //  DYNAMIC SLIDER INIT FUNCTION.
+    
+        var dynamicInit = function( options ) {
+            this.output = options.output;
+            this.output.slider = this;
+            this.vector = this.output.vector = options.vector;
+            this.restore = options.restore;
+            this.value = options.value;
+            this.min = options.min;
+            this.max = options.max;
+            this.step = options.step;
+            this.value = options.value;
+            this.update = options.onupdate;
+            this.output.oninput = options.onoutput;
+            
+        //  Slider Event listeners.
+        
+            this.onmousedown = function() { 
+                currentSlider = this;
+                currentOutput = this.output;
+                currentSliderStatus = true;
+                currentSlider.value = this.restore;
+            };
+            
+            this.onmouseup = function() { 
+                currentSlider.value = this.restore;
+                currentSlider = null;
+                currentOutput = null;
+                currentSliderStatus = false; 
+            };
+            
+        //  Output Event listeners.
+        
+            this.output.onmousedown = function() {
+                if (!currentTarget) event.preventDefault();
+            };
+
+            console.log("Dynamic slider", this.id, "initialized.");
+        }
+        
+    //  STATIC SLIDER INIT FUNCTION.
+        
+        var staticInit = function( options ) {
+            this.output = options.output;
+            this.vector = this.output.vector = options.vector;
+            this.output.slider = this;
+            this.restore = this.output.restore = options.restore;
+            this.value = this.output.value = options.value;
+            this.min = this.output.min = options.min;
+            this.max = this.output.max = options.max;
+            this.step = this.output.step = options.step;
+            this.value = this.output.value = options.value;
+            this.update = options.onupdate;
+            this.output.oninput = options.onoutput;
+            
+        //  Slider Event listeners.
+        
+            this.onmousedown = function() { 
+                currentSlider = this;
+                currentOutput = this.output;
+                currentSliderStatus = true;
+            };
+            
+            this.onmouseup = function() { 
+                currentSlider = null;
+                currentOutput = null;
+                currentSliderStatus = false; 
+            };
+            
+        //  Output Event listeners.
+        
+            this.output.onmousedown = function() {
+                if (!currentTarget) event.preventDefault();
+            };
+
+            console.log("Static slider", this.id, "initialized.");
+        }
+
+    </script>
+
+</template>

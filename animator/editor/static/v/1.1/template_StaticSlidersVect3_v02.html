@@ -1,0 +1,86 @@
+<template name="StaticSlidersVect3" id="static-slider-v3">
+    
+    <style type="text/css" id="v3-static-sliders-css">
+        #v3-sliders-container { 
+            position:absolute; left:0px; right:0px; margin:20px; padding:10px; 
+            color: #ffffff; border:2px solid #ffffff; border-radius:10px; 
+        }
+        .slider-row { padding-left:10px; padding-right:5px; }
+        .dynamic-label  { position:absolute; width:18%; font-size:11px; padding-top:5px; }
+        .dynamic-slider { width:60%; margin-left:20%; }
+        .dynamic-output { 
+            position:absolute; right:0px; margin-right:10px; width:18%; 
+            color:#ffffff; border:none; background-color:rgba(255,255,255,0); 
+            font-weight:bold; font-size:1.2em; text-align:right; 
+        } 
+    </style>
+
+    <div id="v3-sliders-container">
+        <div class="slider-row">
+            <label for="v3-slider-x" id="v3-label-x" class="dynamic-label">Vector3&nbsp;<strong>x:</strong></label>
+            <input type="range" id="v3-slider-x" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="v3-output-x" class="dynamic-output" value="0" step="0.01">
+        </div>
+        <div class="slider-row">
+            <label for="v3-slider-y" id="v3-label-y" class="dynamic-label">Vector3&nbsp;<strong>y:</strong></label>
+            <input type="range" id="v3-slider-y" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="v3-output-y" class="dynamic-output" value="0" step="0.01">
+        </div>
+        <div class="slider-row">
+            <label for="v3-slider-z" id="v3-label-z" class="dynamic-label">Vector3&nbsp;<strong>z:</strong></label>
+            <input type="range" id="v3-slider-z" class="dynamic-slider" min="-1" max="1" value="0" step="0.01">
+            <input type="number" id="v3-output-z" class="dynamic-output" value="0" step="0.01">
+        </div>
+    </div>
+
+    <script>
+    
+    //  INTIALIZE STATIC V3 SLIDERS.
+    /*
+        options: { 
+            slider:   HTML element, 
+            output:   HTML element, 
+            target:   HTML element, 
+            min:      number, 
+            max:      number, 
+            step:     number, 
+            restore:  number, 
+            value:    number,
+            onoutput: function,
+            onupdate: function
+        }
+    */
+        function initStaticSlider( options ) {
+        
+            var slider = options.slider;
+            slider.output = options.output;
+            slider.output.slider = options.slider;
+            slider.target = slider.output.target = options.target;
+            slider.restore = slider.output.restore = options.restore;
+            slider.value = slider.output.value = options.value;
+            slider.min = slider.output.min = options.min;
+            slider.max = slider.output.max = options.max;
+            slider.step = slider.output.step = options.step;
+            slider.value = slider.output.value = options.value;
+            slider.update = options.onupdate;
+            slider.output.oninput = options.onoutput;
+            
+        //  Slider Event listeners.
+            slider.onmousedown = function() { 
+                currentSlider = this;
+                currentOutput = this.output;
+                currentSliderStatus = true;
+            };
+            
+            slider.onmouseup = function() { 
+                currentSlider = null;
+                currentOutput = null;
+                currentSliderStatus = false; 
+            };
+            
+            slider.value = slider.output.value = Number( slider.target.value );
+        }
+
+    </script>
+
+</template>

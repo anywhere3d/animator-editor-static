@@ -1,0 +1,363 @@
+<html>
+
+    <head>
+    
+        <title>timeline drawer v04</title>
+        
+        <style type="text/css" id="animator-editor-css">
+            html, body { width: 100%; height: 100%; }
+            body { background-color: #000000; margin:0; padding:0px; overflow:auto; font-family:arial, san-serif; }
+            #timeline-container { margin:20px; }
+        </style>
+        
+    </head>
+    
+    <body>
+        
+        <div id="timeline-container"></div>
+        
+        <script>
+
+            var timeContainer = document.getElementById("timeline-container");
+            
+        //  Settings.
+            var duration = 3; // (sec).
+            var defaultTimeScale = Math.floor(timeContainer.offsetWidth / duration); // (pixels).
+        
+        //  Dimensions.
+            var markerTrackHeight = 20;
+            var width = timeContainer.offsetWidth; // duration * defaultTimeScale;
+            var height = 70;
+            var timeScale = defaultTimeScale; // number of pixels to 1 second.
+            
+        //  Photoshop colors.
+//        	var a = "#343434";
+//        	var b = "#535353";
+//        	var c = "#b8b8b8";
+//        	var d = "#d6d6d6";
+            
+        /**************************/
+        //  Utilities
+        /**************************/
+        
+            function style(element, var_args) {
+            	for (var i = 1; i < arguments.length; ++i) {
+            		var styles = arguments[i];
+            		for (var s in styles) {
+            			element.style[s] = styles[s];
+            		}
+            	}
+            }
+            
+            function format_friendly_seconds(s, type) {
+
+            	var raw_secs = s | 0;
+            	var secs_micro = s % 60;
+            	var secs = raw_secs % 60;
+            	var raw_mins = raw_secs / 60 | 0;
+            	var mins = raw_mins % 60;
+            	var hours = raw_mins / 60 | 0;
+            
+            	var secs_str = (secs / 100).toFixed(2).substring(2);
+            //  console.log("secs_str:", secs_str);
+                
+            	var str = secs_str; // var str = mins + ":" + secs_str;
+            
+            	if (s % 1 > 0) {
+            		var t2 = (s % 1) * 60;
+            		if (type === "frames") str = secs + "+" + t2.toFixed(0) + "f";
+            		else str += ((s % 1).toFixed(2)).substring(1);
+        		//  else str = mins + ':' + secs_micro;
+        		//  else str = secs_micro + 's'; /// .toFixed(2)
+            	}
+            	
+        	//  console.log("str:", str);
+            	return str;	
+            }
+        
+            function proxy_ctx(ctx) {
+        	//  Creates a proxy 2d context wrapper which 
+        	//  allows the fluent / chaining API.
+            	var wrapper = {};
+            
+            	function proxy_function(c) {
+            		return function() {
+        			//  Warning: this doesn't return value of function call
+            			ctx[c].apply(ctx, arguments);
+            			return wrapper;
+            		};
+            	}
+            
+            	function proxy_property(c) {
+            		return function(v) {
+            			ctx[c] = v;
+            			return wrapper;
+            		};
+            	}
+            
+            	wrapper.run = function(args) {
+            		args(wrapper);
+            		return wrapper;
+            	};
+            
+            	for (var c in ctx) {
+        		//  if (!ctx.hasOwnProperty(c)) continue;
+        		//  console.log(c, typeof(ctx[c]), ctx.hasOwnProperty(c));
+        		//  string, number, boolean, function, object
+            
+            		var type = typeof(ctx[c]);
+            		switch(type) {
+            			case "object":
+            				break;
+            			case "function":
+            				wrapper[c] = proxy_function(c);
+            				break;
+            			default:
+            				wrapper[c] = proxy_property(c);
+            				break;
+            		}
+            	}
+            
+            	return wrapper;
+            }
+            
+        //  END Utilities.
+        
+        /**************************/
+        //  ui_canvas
+        /**************************/
+        
+        /*
+         * Usage: canvas = new Canvas(width, height);
+         * canvas.resize();
+         */
+            
+        //  children
+        //  1: override repaint
+        //  2: add objects
+        //  Canvas.uses(CanvasChild);
+        //  CanvasItem
+        //  width, height, x, y
+        //  allow Drag
+        //  allow Click
+        //  mouseOver
+        /*
+            function Canvas(w, h) {
+            
+            	var canvas, ctx, width, height, dpr;
+            
+            	var canvasItems = [];
+            	var child;
+            
+            	function create() {
+            		canvas = document.createElement("canvas");
+            		ctx = canvas.getContext("2d");
+            	}
+            
+            	function setSize(w, h) {
+            		width = w;
+            		height = h;
+            		dpr = window.devicePixelRatio;
+            		canvas.width = width * dpr;
+            		canvas.height = height * dpr;
+            		canvas.style.width = width + "px";
+            		canvas.style.height = height + "px";
+            
+            		if (child) child.setSize(w, h);
+            	}
+            
+            	function paint(ctx) {
+            		if (child) {
+            			if (!child.paint) console.warn("implement repaint()")
+            			child.paint(ctx);
+            		}
+            
+            		var item;
+            		for (var i = 0; i < canvasItems.length; i++) {
+            			item = canvasItems[i];
+            			item.paint()
+            		}
+            	}
+            
+            	function repaint() {
+            		paint(ctx);
+            	}
+            
+            	function add(item) {
+            		canvasItems.push(item)
+            	}
+            
+            	function remove(item) {
+            		canvasItems.splice(canvasItems.indexOf(item), 1);
+            	}
+            
+            	function uses(c) {
+            		child = c;
+            		child.add = this.add;
+            		child.remove = this.remove;
+            	}
+            
+            	create();
+            	setSize(w, h);
+            	this.setSize = setSize;
+            	this.repaint = repaint;
+            	this.uses = uses;
+            
+            	this.dom = canvas;
+            
+            	handleDrag(canvas,
+            		function down(e) {
+            			if (child.onDown) { child.onDown(e) };
+            		},
+            		function move(e) {
+            			if (child.onMove) { child.onMove(e) };
+            		},
+            		function up(e) {
+            			if (child.onUp) { child.onUp(e) };
+            		}
+            	);
+            }
+        */
+        // END ui_canvas.
+        
+        //  View Panel.
+        
+            var frame_start = 0; // this is the current scroll position.
+            
+        //  This class contains the view for the right main section of timeliner
+
+            var tickMark1;
+            var tickMark2;
+            var tickMark3;
+            
+        //  Subdivison LOD
+        //  timeScale refers to number of pixels per unit
+        //  Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins.    
+                
+            function time_scaled() {
+
+            	var subDivision = 60;
+            
+            	tickMark1 = Math.round( (timeScale / subDivision) * 100 ) / 100;
+            	tickMark2 = 2 * tickMark1;
+            	tickMark3 = 10 * tickMark1;
+            
+            }
+            
+            time_scaled();
+            
+        //  Timeline Panel.
+            var dpr = window.devicePixelRatio;
+            var canvas = document.createElement("canvas");
+            canvas.width = width; // * dpr;
+            canvas.height = height; // * dpr;
+            timeContainer.appendChild(canvas);
+            
+            var ctx = canvas.getContext("2d");
+        	var ctx_wrap = proxy_ctx(ctx);
+            
+            var currentTime; // measured in seconds.
+    	//  Technically it could be in frames or have it in string format (0:00:00:1-60).
+    	
+        	var LEFT_GUTTER = 0;
+        	var i, x, y, il, j;
+        	
+        	function paint() {
+            //  Background.
+                ctx.fillStyle = "#ffffff";
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+        		ctx.save();
+        		ctx.scale(dpr, dpr);
+                
+                ctx.lineWidth = 2; // options: | 0.5 | 1 | 2 |
+                
+    //          width = width;
+    //    		height = height;
+                
+                var units = Math.round(timeScale / tickMark1);
+        		var offsetUnits = (frame_start * timeScale) % units;
+        		var count = Math.ceil( width / units );
+                
+                console.log("timeScale:", timeScale);
+                console.log("tickMark1:", tickMark1);
+                console.log("units:", units); 
+                console.log("offsetUnits:", offsetUnits); 
+                console.log("frame_start:", frame_start);
+                console.log("count:", count); 
+                
+            //  timeScale = pixels to 1 second (40)
+    		//  tickMark1 = marks per second (marks / s)
+    		//  units = pixels to every mark (40)
+                
+                var t =  Math.floor(units * 100 / timeScale);
+                console.log("t:", t);
+                
+            //  1.Labels only.
+        		for (i = 0; i < count + 1; i++) {
+        			x = i * units + LEFT_GUTTER - offsetUnits;
+                    
+        			ctx.fillStyle = "#535353";
+        			ctx.textAlign = "center";
+        
+        		//	var t = (i * units - offsetUnits) / timeScale + frame_start;
+    			//  t = format_friendly_seconds(t);
+                    
+        			var ti = ( t * i / 100 ).toFixed(2).replace(/\./g, ":");
+        			console.log("t" + i + ":", ti);
+                    
+        			ctx.fillText(ti, x, 50);
+        		}
+        
+        		units = Math.round( timeScale / tickMark2 );
+        		count =  Math.round( (width - LEFT_GUTTER + offsetUnits) / units );
+                
+                console.log("timeScale:", timeScale);
+                console.log("tickMark1:", tickMark1);
+                console.log("units:", units); 
+                console.log("offsetUnits:", offsetUnits); 
+                console.log("frame_start:", frame_start);
+                console.log("count:", count); 
+                
+            //  2.Marker lines - main.
+        		for (i = 0; i < count + 1; i++) {
+        			ctx.strokeStyle = "#b8b8b8";
+        			ctx.beginPath();
+        			x = i * units + LEFT_GUTTER - offsetUnits;
+        			ctx.moveTo(x, markerTrackHeight + 14);
+        			ctx.lineTo(x, markerTrackHeight - 16);
+        			ctx.stroke();
+        		}
+        
+        		var mul = tickMark3 / tickMark2;
+        		units = Math.round( timeScale / tickMark3 );
+        		count =  Math.round( (width - LEFT_GUTTER + offsetUnits) / units );
+        		
+                console.log("mul:", mul); 
+                console.log("timeScale:", timeScale);
+                console.log("tickMark1:", tickMark1);
+                console.log("units:", units); 
+                console.log("offsetUnits:", offsetUnits); 
+                console.log("frame_start:", frame_start);
+                console.log("count:", count); 
+                
+            //  3.Small ticks.
+                for (i = 0; i < count + 1; i++) {
+                	if (i % mul === 0) continue;
+                	ctx.strokeStyle = "#b8b8b8";
+                	ctx.beginPath();
+                	x = i * units + LEFT_GUTTER - offsetUnits;
+                	ctx.moveTo(x, markerTrackHeight + 5);
+                	ctx.lineTo(x, markerTrackHeight - 10);
+                	ctx.stroke();
+                }
+            
+            }
+            
+            paint();
+            
+ 
+        </script>
+        
+    </body>
+
+</html>
