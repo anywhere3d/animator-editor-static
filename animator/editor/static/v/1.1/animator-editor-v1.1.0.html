@@ -163,7 +163,7 @@
     	#left-side-pinbtn{ 
             position:absolute; top:20px; right:20px; width:32px; height:32px; 
             border:1px solid white; opacity:0.5; border-radius:4px; 
-            background-image:url(icons/button-chat-remix.png);
+            background-image:url(/anywhere3d/icons/button-chat-remix.png);
             background-repeat:no-repeat; background-position:50% 50%; 
             background-size:contain; cursor:pointer;
             -webkit-transition:opacity 250ms ease-out; 
@@ -171,7 +171,7 @@
         #right-side-pinbtn{ 
             position: absolute; top: 20px; left: 20px; width: 32px; height: 32px; 
             border: 1px solid white; opacity:0.5; border-radius: 4px; 
-            background-image: url(icons/options-panel.png); 
+            background-image: url(/anywhere3d/icons/options-panel.png); 
             background-repeat:no-repeat; background-position: 50% 50%; 
             background-size:contain; cursor:pointer;
             -webkit-transition: opacity 250ms ease-out;
@@ -2068,7 +2068,7 @@
     		skydome = new THREE.Mesh(
     			new THREE.SphereGeometry( far * 0.1, 15, 15 ),
     			new THREE.MeshBasicMaterial({
-    				map: loader.load( "skydomes/skydome.jpg" ),
+    				map: loader.load( "/anywhere3d/skydomes/skydome.jpg" ),
     				color: 0xffffff,
     				side: THREE.DoubleSide
     			})
@@ -2109,7 +2109,7 @@
             document.addEventListener( 'mousemove', onDocumentMouseMove, false );
             
         //  Manny The Skeleton Default Rigged Mesh.
-            loadSkinnedAnimatedMesh("skinned/MannyTheSkeletonDefaultRigged_v04.js", 1);
+            loadSkinnedAnimatedMesh("/anywhere3d/skinned/MannyTheSkeletonDefaultRigged_v04.js", 1);
             
         //  Animator Inits.
             initAnimatorAdjustValues();
