@@ -4401,10 +4401,11 @@
         initSlider(durSlider, durmin, durmax, durstep);
         
         
-        function initSlider(domSlider, min, max, step){
+        function initSlider(domSlider, min, max, step, value){
             domSlider.min = min;
             domSlider.max = max;
             domSlider.step = step;
+			if (value != null) domSlider.value = value;
         }
         
         
