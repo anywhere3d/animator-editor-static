@@ -1132,9 +1132,9 @@
             rotSliderZ.value = Number(rotOutputZ.value);             // number degrees
             
         //  INITIALAZE SCALE OUTPUT VALUES.
-            sx = currentBone.scale.x * 100;      // number
-            sy = currentBone.scale.y * 100;      // number
-            sz = currentBone.scale.z * 100;      // number
+            sx = 100; // currentBone.scale.x * 100;      // number
+            sy = 100; // currentBone.scale.y * 100;      // number
+            sz = 100; // currentBone.scale.z * 100;      // number
             sclOutputX.value = sx.toFixed(1);    // string
             sclOutputY.value = sy.toFixed(1);    // string
             sclOutputZ.value = sz.toFixed(1);    // string
@@ -2423,9 +2423,9 @@
             */
                 getCurrentBone(); 
                 initBonesAdjustValues();
+
                 console.log("Avatar loading completed and ready to animate.");
-                
-			}
+            }
         }
         
         
