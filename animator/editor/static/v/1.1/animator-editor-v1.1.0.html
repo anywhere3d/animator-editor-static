@@ -1071,10 +1071,10 @@
     //  Initialize Scale sliders. // ok
         var sclmin, sclmax, sclstep;
         sclmin = 0.99; sclmax = 1.01; sclstep = 0.001;
-        initSlider(sclSliderX, sclmin, sclmax, sclstep);
-        initSlider(sclSliderY, sclmin, sclmax, sclstep);
-        initSlider(sclSliderZ, sclmin, sclmax, sclstep);
-        initSlider(sclUniformSlider, sclmin, sclmax, sclstep);
+        initSlider(sclSliderX, sclmin, sclmax, sclstep, 1);
+        initSlider(sclSliderY, sclmin, sclmax, sclstep, 1);
+        initSlider(sclSliderZ, sclmin, sclmax, sclstep, 1);
+        initSlider(sclUniformSlider, sclmin, sclmax, sclstep, 1);
         
     //  Initialize Animation sliders. // ok
         var durmin, durmax, durstep;
@@ -1082,10 +1082,11 @@
         initSlider(durSlider, durmin, durmax, durstep);
         
         
-        function initSlider(domSlider, min, max, step){ // ok
+        function initSlider(domSlider, min, max, step, value){ // ok
             domSlider.min = min;
             domSlider.max = max;
             domSlider.step = step;
+	    if (!!value) domSlider.value = value;
         }
         
         
